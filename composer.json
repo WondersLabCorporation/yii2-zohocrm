@@ -1,0 +1,29 @@
+{
+    "name": "WondersLabCorporation/yii2-zohocrm",
+    "type": "yii2-extension",
+    "description": "Yii2 component for ZohoCRM integration",
+    "keywords": ["Yii2 ZohoCRM"],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Dmitriy Raschepkin",
+            "email": "dmitriy.raschepkin@gmail.com"
+        }
+    ],
+    "require": {
+        "WondersLabCorporation/zohocrm" : "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "WondersLabCorporation\\" : ""
+        }
+    },
+    "require-dev": {
+    },
+    "repositories": [
+        {
+            "url": "https://github.com/WondersLabCorporation/zohocrm.git",
+            "type": "git"
+        }
+    ]
+}
