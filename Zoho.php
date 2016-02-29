@@ -22,17 +22,14 @@ use Zoho\CRM\ZohoClient;
 class Zoho extends \yii\base\Component
 {
     public $authToken;
-    public $baseUri;
+    public $baseUri = 'https://crm.zoho.com/crm/private';
 
     protected $client;
 
-    public function __construct(array $config)
+    public function __construct($config = [])
     {
         if (!isset($config['authToken'])) {
             throw new InvalidConfigException('Auth token param is required');
-        }
-        if (!isset($config['baseUri'])) {
-            throw new InvalidConfigException('Base Uri param is required');
         }
         parent::__construct($config);
     }
@@ -41,7 +38,7 @@ class Zoho extends \yii\base\Component
     {
         if (strpos($name, 'create') === 0) {
             // Cut 'create' from $name and try to create such and entity. e.g. createAccount => new Account
-            return ZohoRecord::createEntity(substr($name, 6), [$this->getClient()]);
+            return ZohoRecord::createEntity(substr($name, 6), ['zohoClient' => $this->getClient()]);
         }
         return parent::__call($name, $params);
     }
