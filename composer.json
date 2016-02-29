@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "WondersLabCorporation/zohocrm" : "dev-master"
+        "WondersLabCorporation/zohocrm" : "~1.0"
     },
     "autoload": {
         "psr-4": {
