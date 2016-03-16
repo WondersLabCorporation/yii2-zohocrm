@@ -22,6 +22,8 @@ use Zoho\CRM\ZohoClient;
 class Zoho extends \yii\base\Component
 {
     public $authToken;
+    public $organizationId;
+    public $subscriptionsToken;
     public $baseUri = 'https://crm.zoho.com/crm/private';
 
     public $zohoApiParams = [];
@@ -46,6 +48,11 @@ class Zoho extends \yii\base\Component
         if (strpos($name, 'load') === 0) {
             // Cut 'load' from $name and try to create such and entity. e.g. loadAccount => Account -> getRecordById
             return ZohoRecord::getEntity(substr($name, 4), $this->prepareZohoParams($params));
+        }
+        // Load Zoho\Subscription\Api\<classname> if exist
+        $fullClassName = 'Zoho\Subscription\Api\\' . $name;
+        if (class_exists($fullClassName)) {
+            return new $fullClassName($this->subscriptionsToken, $this->organizationId);
         }
         return parent::__call($name, $params);
     }
