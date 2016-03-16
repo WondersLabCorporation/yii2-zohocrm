@@ -43,17 +43,18 @@ class Zoho extends \yii\base\Component
 
         if (strpos($name, 'create') === 0) {
             // Cut 'create' from $name and try to create such and entity. e.g. createAccount => new Account
-            return ZohoRecord::createEntity(substr($name, 6), $this->prepareZohoParams($params));
+            try{
+                return ZohoRecord::createEntity(substr($name, 6), $this->prepareZohoParams($params));
+            } catch (UnknownEntityException $ex) {
+                $fullClassName = 'Zoho\Subscription\Api\\' . substr($name, 6);
+                return new $fullClassName($this->subscriptionsToken, $this->organizationId);
+            }
         }
         if (strpos($name, 'load') === 0) {
             // Cut 'load' from $name and try to create such and entity. e.g. loadAccount => Account -> getRecordById
             return ZohoRecord::getEntity(substr($name, 4), $this->prepareZohoParams($params));
         }
-        // Load Zoho\Subscription\Api\<classname> if exist
-        $fullClassName = 'Zoho\Subscription\Api\\' . $name;
-        if (class_exists($fullClassName)) {
-            return new $fullClassName($this->subscriptionsToken, $this->organizationId);
-        }
+                
         return parent::__call($name, $params);
     }
 
