@@ -10,6 +10,8 @@ Add this to your config file
     'zoho' => [
         'class' => 'WondersLabCorporation\Zoho',
         'authToken' => 'ZOHO_CRM_AUTH_TOKEN',
+        'subscriptionsToken' => 'ZOHO_SUBSCRIPTIONS_AUTH_TOKEN',
+        'organizationId' => 'ZOHO_SUBSCRIPTIONS_ORGANIZATION_ID',
     ]
 ]
 ```

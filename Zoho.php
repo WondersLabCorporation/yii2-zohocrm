@@ -7,6 +7,7 @@ use Zoho\CRM\Common\ZohoRecord;
 use Zoho\CRM\Entities\Account;
 use Zoho\CRM\Exception\UnknownEntityException;
 use Zoho\CRM\ZohoClient;
+use Zoho\Subscription\Client\Client as ZohoSubscriptionsClient;
 
 /**
  * Class Zoho - Yii2 component for ZohoCrm integration
@@ -43,16 +44,25 @@ class Zoho extends \yii\base\Component
 
         if (strpos($name, 'create') === 0) {
             // Cut 'create' from $name and try to create such and entity. e.g. createAccount => new Account
-            try{
+            try {
                 return ZohoRecord::createEntity(substr($name, 6), $this->prepareZohoParams($params));
             } catch (UnknownEntityException $ex) {
-                $fullClassName = 'Zoho\Subscription\Api\\' . substr($name, 6);
-                return new $fullClassName($this->subscriptionsToken, $this->organizationId);
+                return ZohoSubscriptionsClient::createEntity(substr($name, 6), $this, $params);
             }
         }
         if (strpos($name, 'load') === 0) {
             // Cut 'load' from $name and try to create such and entity. e.g. loadAccount => Account -> getRecordById
-            return ZohoRecord::getEntity(substr($name, 4), $this->prepareZohoParams($params));
+            try {
+                return ZohoRecord::getEntity(substr($name, 4), $this->prepareZohoParams($params));
+            } catch (UnknownEntityException $ex) {
+                return ZohoSubscriptionsClient::getEntity(substr($name, 4), $this, $params);
+            }
+        }
+        if (strpos($name, 'list') === 0) {
+            // Cut 'list' from $name and try to create such and entity. e.g. loadAccount => Account -> getRecordById
+            $get_args = array_shift($params);
+            $entity = ZohoSubscriptionsClient::getEntity(substr($name, 4), $this, $params);
+            return $entity->getList($get_args);
         }
                 
         return parent::__call($name, $params);
