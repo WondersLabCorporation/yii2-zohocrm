@@ -50,7 +50,7 @@ class Zoho extends \yii\base\Component
                 return ZohoRecord::createEntity($entity, $this->prepareZohoParams($params));
             } catch (UnknownEntityException $ex) {
                 // Creating ZohoSubscription entity in case of fail
-                return ZohoSubscriptionsClient::createEntity($entity, $this, $this->prepareZohoParams($params, false));
+                return ZohoSubscriptionsClient::createEntity($entity, $this->prepareZohoParams($params, false));
             }
         }
         if (strpos($name, 'load') === 0) {
@@ -61,14 +61,12 @@ class Zoho extends \yii\base\Component
                 return ZohoRecord::getEntity($entity, $this->prepareZohoParams($params));
             } catch (UnknownEntityException $ex) {
                 // Getting ZohoSubscription entity in case of fail
-                return ZohoSubscriptionsClient::getEntity($entity, $this, $this->prepareZohoParams($params, false));
+                return ZohoSubscriptionsClient::getEntity($entity, $this->prepareZohoParams($params, false));
             }
         }
         if (strpos($name, 'list') === 0) {
             // Cut 'list' from $name and try to load multiple entities.
-            $params = $this->prepareZohoParams($params, false);
-            $entity = ZohoSubscriptionsClient::getEntity(substr($name, 4), $this, $params);
-            return $entity->getList($params);
+            return ZohoSubscriptionsClient::getEntityList(substr($name, 4), $this->prepareZohoParams($params, false));
         }
                 
         return parent::__call($name, $params);
@@ -90,8 +88,12 @@ class Zoho extends \yii\base\Component
             $params['zohoParams'] += $this->zohoApiParams;
             // TODO: Consider checking if zohoClient provided first
             $params['zohoClient'] = $this->getClient();   
+        } else {
+            $params['organizationId'] = $this->organizationId;
+            $params['subscriptionsToken'] = $this->subscriptionsToken;
+            $params['path'] = 'Zoho\Subscription\Api\\';
         }
-        return $params;
+            return $params;
     }
 
     public function getClient()
