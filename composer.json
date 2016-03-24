@@ -11,7 +11,8 @@
         }
     ],
     "require": {
-        "WondersLabCorporation/zohocrm" : "^1.0.4"
+        "WondersLabCorporation/zohocrm" : "^1.0.4",
+        "WondersLabCorporation/zoho-subscription-api" : "^1.0.0"
     },
     "autoload": {
         "psr-4": {

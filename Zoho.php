@@ -44,31 +44,37 @@ class Zoho extends \yii\base\Component
 
         if (strpos($name, 'create') === 0) {
             // Cut 'create' from $name and try to create such and entity. e.g. createAccount => new Account
+            $entity = substr($name, 6);
             try {
-                return ZohoRecord::createEntity(substr($name, 6), $this->prepareZohoParams($params));
+                // Trying to create ZohoCRM entity first
+                return ZohoRecord::createEntity($entity, $this->prepareZohoParams($params));
             } catch (UnknownEntityException $ex) {
-                return ZohoSubscriptionsClient::createEntity(substr($name, 6), $this, $params);
+                // Creating ZohoSubscription entity in case of fail
+                return ZohoSubscriptionsClient::createEntity($entity, $this, $this->prepareZohoParams($params, false));
             }
         }
         if (strpos($name, 'load') === 0) {
             // Cut 'load' from $name and try to create such and entity. e.g. loadAccount => Account -> getRecordById
+            $entity = substr($name, 4);
             try {
-                return ZohoRecord::getEntity(substr($name, 4), $this->prepareZohoParams($params));
+                // Trying to get ZohoCRM entity first
+                return ZohoRecord::getEntity($entity, $this->prepareZohoParams($params));
             } catch (UnknownEntityException $ex) {
-                return ZohoSubscriptionsClient::getEntity(substr($name, 4), $this, $params);
+                // Getting ZohoSubscription entity in case of fail
+                return ZohoSubscriptionsClient::getEntity($entity, $this, $this->prepareZohoParams($params, false));
             }
         }
         if (strpos($name, 'list') === 0) {
-            // Cut 'list' from $name and try to create such and entity. e.g. loadAccount => Account -> getRecordById
-            $get_args = array_shift($params);
+            // Cut 'list' from $name and try to load multiple entities.
+            $params = $this->prepareZohoParams($params, false);
             $entity = ZohoSubscriptionsClient::getEntity(substr($name, 4), $this, $params);
-            return $entity->getList($get_args);
+            return $entity->getList($params);
         }
                 
         return parent::__call($name, $params);
     }
 
-    protected function prepareZohoParams($params)
+    protected function prepareZohoParams($params, $crm = true)
     {
         // Using first argument only for now. TODO: Make sure this is the appropriate way
         if (isset($params[0]) && is_array($params[0])) {
@@ -76,13 +82,15 @@ class Zoho extends \yii\base\Component
         } else {
             $params = [];
         }
-        // Adding API default params if any.
-        if (!isset($params['zohoParams'])) {
-            $params['zohoParams'] = [];
+        if ($crm) {
+            // Adding API default params if any.
+            if (!isset($params['zohoParams'])) {
+                $params['zohoParams'] = [];
+            }
+            $params['zohoParams'] += $this->zohoApiParams;
+            // TODO: Consider checking if zohoClient provided first
+            $params['zohoClient'] = $this->getClient();   
         }
-        $params['zohoParams'] += $this->zohoApiParams;
-        // TODO: Consider checking if zohoClient provided first
-        $params['zohoClient'] = $this->getClient();
         return $params;
     }
 
