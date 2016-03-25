@@ -89,9 +89,12 @@ class Zoho extends \yii\base\Component
             // TODO: Consider checking if zohoClient provided first
             $params['zohoClient'] = $this->getClient();   
         } else {
-            $params['organizationId'] = $this->organizationId;
-            $params['subscriptionsToken'] = $this->subscriptionsToken;
-            $params['path'] = 'Zoho\Subscription\Api\\';
+            if (!isset($params['organizationId'])) {
+                $params['organizationId'] = $this->organizationId;
+            }
+            if (!isset($params['subscriptionsToken'])) {
+                $params['subscriptionsToken'] = $this->subscriptionsToken;
+            }
         }
             return $params;
     }
