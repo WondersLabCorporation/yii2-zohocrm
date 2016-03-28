@@ -7,7 +7,7 @@ use Zoho\CRM\Common\ZohoRecord;
 use Zoho\CRM\Entities\Account;
 use Zoho\CRM\Exception\UnknownEntityException;
 use Zoho\CRM\ZohoClient;
-use Zoho\Subscription\Client\Client as ZohoSubscriptionsClient;
+use Zoho\Subscription\Common\Factory as ZohoSubscriptionsFactory;
 
 /**
  * Class Zoho - Yii2 component for ZohoCrm integration
@@ -50,7 +50,7 @@ class Zoho extends \yii\base\Component
                 return ZohoRecord::createEntity($entity, $this->prepareZohoParams($params));
             } catch (UnknownEntityException $ex) {
                 // Creating ZohoSubscription entity in case of fail
-                return ZohoSubscriptionsClient::createEntity($entity, $this, $this->prepareZohoParams($params, false));
+                return ZohoSubscriptionsFactory::createEntity($entity, $this->prepareZohoParams($params, false));
             }
         }
         if (strpos($name, 'load') === 0) {
@@ -61,14 +61,12 @@ class Zoho extends \yii\base\Component
                 return ZohoRecord::getEntity($entity, $this->prepareZohoParams($params));
             } catch (UnknownEntityException $ex) {
                 // Getting ZohoSubscription entity in case of fail
-                return ZohoSubscriptionsClient::getEntity($entity, $this, $this->prepareZohoParams($params, false));
+                return ZohoSubscriptionsFactory::getEntity($entity, $this->prepareZohoParams($params, false));
             }
         }
         if (strpos($name, 'list') === 0) {
             // Cut 'list' from $name and try to load multiple entities.
-            $params = $this->prepareZohoParams($params, false);
-            $entity = ZohoSubscriptionsClient::getEntity(substr($name, 4), $this, $params);
-            return $entity->getList($params);
+            return ZohoSubscriptionsFactory::getEntityList(substr($name, 4), $this->prepareZohoParams($params, false));
         }
                 
         return parent::__call($name, $params);
@@ -90,8 +88,15 @@ class Zoho extends \yii\base\Component
             $params['zohoParams'] += $this->zohoApiParams;
             // TODO: Consider checking if zohoClient provided first
             $params['zohoClient'] = $this->getClient();   
+        } else {
+            if (!isset($params['organizationId'])) {
+                $params['organizationId'] = $this->organizationId;
+            }
+            if (!isset($params['subscriptionsToken'])) {
+                $params['subscriptionsToken'] = $this->subscriptionsToken;
+            }
         }
-        return $params;
+            return $params;
     }
 
     public function getClient()
